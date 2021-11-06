@@ -1,0 +1,6 @@
+{
+"mongoUrl":  "mongodb+srv://omer:20030670@cluster0.6cqwx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+"expressPort": 8080,
+"minTimeoutSendMessageRange": 1000,
+"maxTimeoutSendMessageRange": 10000
+}
