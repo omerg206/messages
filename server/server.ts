@@ -31,12 +31,7 @@ async function main() {
         console.log(`CORS-enabled web server listening on port ${configService.config.expressPort}`)
     })
 
-
-
-    // const res = await MessageModel.find({ $text: { $search: `"sat"` } }, { _id: 1 }).skip(0).limit(1)
-    // console.log(res);
-
-}
+   }
 
 
 

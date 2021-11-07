@@ -61,6 +61,8 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
   ngAfterViewInit() {
     // this.dataSource.paginator = this.paginator;
     // this.dataSource.sort = this.sort;
+    // this.sort.active = 'sernder';
+    // this.sort.direction = 'asc'
 
     fromEvent(this.filter.nativeElement, 'keyup')
       .pipe(debounceTime(300),
@@ -68,19 +70,23 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
         distinctUntilChanged(),
         takeUntil(this.destroy$))
       .subscribe((value: string) => {
-        this.getMessagesFromServer({ filter: value });
+        this.paginator.pageIndex = 0;
+        this.getMessagesFromServer({ filter: value,  pageNumber: this.paginator.pageIndex, pageSize: this.paginator.pageSize,
+          sortColumn: this.sort.active as keyof Message, direction: this.sort.direction as   unknown as MessageSortDirection});
       });
 
     this.getMessagesFromServer({});
   }
 
   onPageChange($event: PageEvent) {
-    this.getMessagesFromServer({ pageNumber: $event.pageIndex, pageSize: $event.pageSize })
+    this.getMessagesFromServer({ pageNumber: $event.pageIndex, pageSize: $event.pageSize,
+    sortColumn: this.sort.active as keyof Message, direction: this.sort.direction as   unknown as MessageSortDirection})
   }
 
   onSortChange($event: Sort) {
     this.paginator.pageIndex = 0;
-    this.getMessagesFromServer({ sortColumn: $event.active as keyof Message, direction: $event.direction as unknown as MessageSortDirection });
+    this.getMessagesFromServer({ sortColumn: $event.active as keyof Message, direction: $event.direction as unknown as MessageSortDirection,
+    pageNumber: 0, pageSize: this.paginator.pageSize });
   }
 
 
