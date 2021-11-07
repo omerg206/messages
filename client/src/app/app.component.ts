@@ -18,6 +18,11 @@ export class AppComponent {
   {
     label: 'Messages Table',
     route: './messagesTable'
-  }]
+  },
+  {
+    label: 'Create Message ',
+    route: './createMessage'
+  }
+]
 
 }

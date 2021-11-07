@@ -30,11 +30,10 @@ const routes: Routes = [
     MatSortModule,
     MatProgressSpinnerModule,
     MatTableModule,
-    FormsModule,
     ReactiveFormsModule,
     RouterModule.forChild(routes)
   ],
   providers: [TitleCasePipe],
   exports: [ RouterModule]
 })
-export class MessagesModule { }
+export class MessagesTableModule { }

@@ -1,0 +1,22 @@
+<mat-card class="message-create-container">
+  <form [formGroup]="messageForm" class="form">
+
+    <mat-form-field appearance="outline">
+      <mat-label>Input</mat-label>
+      <input id="sender" type="text" formControlName="sender" matInput>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Body</mat-label>
+      <input id="sender2" type="text" formControlName="sender2" matInput>
+    </mat-form-field>
+
+
+        <button type="submit" mat-raised-button [disabled]="!messageForm.valid">Post Message</button>
+
+
+  </form>
+
+
+</mat-card>
+
