@@ -7,6 +7,18 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Routes, RouterModule } from '@angular/router';
+
+
+const routes: Routes = [
+  {
+    path: '',
+    component: MessagesTableComponent
+  }
+ ];
+
+
+
 @NgModule({
   declarations: [
     MessagesTableComponent,
@@ -19,9 +31,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     MatProgressSpinnerModule,
     MatTableModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterModule.forChild(routes)
   ],
   providers: [TitleCasePipe],
-  exports: [MessagesTableComponent]
+  exports: [ RouterModule]
 })
 export class MessagesModule { }
