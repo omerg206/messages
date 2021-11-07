@@ -71,22 +71,28 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
         takeUntil(this.destroy$))
       .subscribe((value: string) => {
         this.paginator.pageIndex = 0;
-        this.getMessagesFromServer({ filter: value,  pageNumber: this.paginator.pageIndex, pageSize: this.paginator.pageSize,
-          sortColumn: this.sort.active as keyof Message, direction: this.sort.direction as   unknown as MessageSortDirection});
+        this.getMessagesFromServer({
+          filter: value, pageNumber: this.paginator.pageIndex, pageSize: this.paginator.pageSize,
+          sortColumn: this.sort.active as keyof Message, direction: this.sort.direction as unknown as MessageSortDirection
+        });
       });
 
     this.getMessagesFromServer({});
   }
 
   onPageChange($event: PageEvent) {
-    this.getMessagesFromServer({ pageNumber: $event.pageIndex, pageSize: $event.pageSize,
-    sortColumn: this.sort.active as keyof Message, direction: this.sort.direction as   unknown as MessageSortDirection})
+    this.getMessagesFromServer({
+      pageNumber: $event.pageIndex, pageSize: $event.pageSize, filter: this.filter.nativeElement.value,
+      sortColumn: this.sort.active as keyof Message, direction: this.sort.direction as unknown as MessageSortDirection
+    })
   }
 
   onSortChange($event: Sort) {
     this.paginator.pageIndex = 0;
-    this.getMessagesFromServer({ sortColumn: $event.active as keyof Message, direction: $event.direction as unknown as MessageSortDirection,
-    pageNumber: 0, pageSize: this.paginator.pageSize });
+    this.getMessagesFromServer({
+      sortColumn: $event.active as keyof Message, direction: $event.direction as unknown as MessageSortDirection,  filter: this.filter.nativeElement.value,
+      pageNumber: 0, pageSize: this.paginator.pageSize
+    });
   }
 
 

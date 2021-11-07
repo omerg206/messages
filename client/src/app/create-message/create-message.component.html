@@ -1,22 +1,42 @@
-<mat-card class="message-create-container">
-  <form [formGroup]="messageForm" class="form">
+<div class="message-create-container">
+  <mat-card>
+    <form
+      [formGroup]="messageForm"
+      class="form"
+      (ngSubmit)="submit(messageBody.value)"
+    >
+      <mat-form-field appearance="outline">
+        <mat-label>Sender</mat-label>
+        <input id="sender" type="text" formControlName="sender" matInput />
+        <mat-error *ngIf="!messageForm.valid">
+          Sender is <strong>required</strong>
+        </mat-error>
+      </mat-form-field>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Input</mat-label>
-      <input id="sender" type="text" formControlName="sender" matInput>
-    </mat-form-field>
+      <mat-form-field appearance="fill">
+        <mat-label>Content</mat-label>
+        <textarea
+          #messageBody
+          matInput
+          cdkTextareaAutosize
+          #autosize="cdkTextareaAutosize"
+          cdkAutosizeMinRows="7"
+          cdkAutosizeMaxRows="10"
+        ></textarea>
+      </mat-form-field>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Body</mat-label>
-      <input id="sender2" type="text" formControlName="sender2" matInput>
-    </mat-form-field>
-
-
-        <button type="submit" mat-raised-button [disabled]="!messageForm.valid">Post Message</button>
-
-
-  </form>
-
-
-</mat-card>
-
+      <button
+        [disabled]="!messageForm.valid || isSendingMessage"
+        color="primary"
+        type="submit"
+        mat-raised-button
+        [ngClass]="{
+          'submit-success': isSendSuccessful,
+          'submit-fail': isSendError
+        }"
+      >
+        Post Message
+      </button>
+    </form>
+  </mat-card>
+</div>
