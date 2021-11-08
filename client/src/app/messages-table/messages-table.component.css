@@ -5,8 +5,8 @@
 
 .example-table-container {
   position: relative;
-  min-height: 200px;
-  max-height: 400px;
+  /* min-height: 200px;
+  max-height: 400px; */
   overflow: auto;
 }
 
@@ -40,4 +40,10 @@ table {
 
 .mat-column-created {
   max-width: 124px;
+}
+
+:host{
+  display: flex;
+flex-direction: column;
+flex: 1 1 auto;
 }
