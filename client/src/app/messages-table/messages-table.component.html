@@ -26,7 +26,12 @@
         <mat-header-cell *matHeaderCellDef mat-sort-header>
           {{ column | titlecase }}
         </mat-header-cell>
-        <mat-cell *matCellDef="let element">{{ element[column] }}</mat-cell>
+        <mat-cell
+          [ngStyle]="{ display: 'flex', 'flex-direction': 'column' }"
+          *matCellDef="let element"
+        >
+          <app-cell-display [displayValue]="element[column]"></app-cell-display>
+        </mat-cell>
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

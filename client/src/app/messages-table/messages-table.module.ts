@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
+import { CellDisplayComponent } from './cell-display/cell-display.component';
 
 
 const routes: Routes = [
@@ -22,6 +23,7 @@ const routes: Routes = [
 @NgModule({
   declarations: [
     MessagesTableComponent,
+    CellDisplayComponent,
   ],
   imports: [
     CommonModule,

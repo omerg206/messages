@@ -25,6 +25,23 @@ mat-table {
   height: 100%;
 }
 
+message-cell{
+  display: inline-flex;
+flex-direction: column;
+color: red !important;
+
+background-color: chocolate !important;
+}
+
+app-cell-display{
+  display: flex;
+  width: 100%;
+  align-items: center;
+  align-self: center;
+  flex: 1 1;
+  /* flex-direction: column; */
+}
+
 .example-loading-shade {
   position: absolute;
   top: 0;
