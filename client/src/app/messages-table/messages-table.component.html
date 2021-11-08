@@ -30,7 +30,10 @@
           [ngStyle]="{ display: 'flex', 'flex-direction': 'column' }"
           *matCellDef="let element"
         >
-          <app-cell-display [displayValue]="element[column]"></app-cell-display>
+          <app-cell-display
+            [displayKey]="column"
+            [displayValue]="element[column]"
+          ></app-cell-display>
         </mat-cell>
       </ng-container>
 

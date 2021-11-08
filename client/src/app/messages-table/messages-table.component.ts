@@ -19,7 +19,7 @@ import { Message, GetMessageParams, MessageSortDirection, GetPagedMessageRespons
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy {
-  displayedColumns: string[] = ['sender', 'creationDate', 'body', 'status',];
+  displayedColumns: Array<keyof Message> = ['sender', 'creationDate', 'body', 'status',];
   data: Message[] = [];
   totalMessagesInServer = 0;
   isLoadingResults = true;

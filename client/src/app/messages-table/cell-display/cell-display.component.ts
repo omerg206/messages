@@ -1,4 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, HostListener } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Input, HostListener, ViewChild, ElementRef } from '@angular/core';
+import { Message } from '../../../../../shared/messages.model';
+
+const EditableMessageKeys: Array<keyof Message> = ["sender", "body"]
 
 @Component({
   selector: 'app-cell-display',
@@ -7,13 +10,29 @@ import { Component, OnInit, ChangeDetectionStrategy, Input, HostListener } from 
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CellDisplayComponent implements OnInit {
-  @Input() isEditMode: boolean = false;
+  @Input() set displayKey(key: keyof Message) {
+    this.isKeyEditable = EditableMessageKeys.includes(key)
+  }
+
   @Input() displayValue: string | number | Date | null | undefined;
 
-  @HostListener('dbclick', ['$event'])
+  isEditMode: boolean = false;
+  isKeyEditable: boolean = false;
+
+
+  @HostListener('dblclick', ['$event'])
   onDbClick($event: Event) {
-    debugger
+    if (this.isKeyEditable) {
+      this.isEditMode = true;
+    }
+
   }
+
+  @HostListener('focusout', ['$event'])
+  onFocusOut($event: Event) {
+    this.isEditMode = false;
+  }
+
   constructor() { }
 
   ngOnInit(): void {

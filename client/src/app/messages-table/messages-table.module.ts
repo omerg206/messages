@@ -9,6 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { CellDisplayComponent } from './cell-display/cell-display.component';
+import { FocusableDirective } from './cell-display/directives/focusable.directive';
 
 
 const routes: Routes = [
@@ -24,6 +25,7 @@ const routes: Routes = [
   declarations: [
     MessagesTableComponent,
     CellDisplayComponent,
+    FocusableDirective
   ],
   imports: [
     CommonModule,
