@@ -3,15 +3,26 @@
   position: relative;
 }
 
-.example-table-container {
+
+
+.example-table-container{
+  display: flex;
   position: relative;
-  /* min-height: 200px;
-  max-height: 400px; */
+  flex-direction: column;
+  height:0px;
+  flex: 1 1 auto;
+}
+
+.table-container {
+  flex: 1;
+  min-height: 0;
   overflow: auto;
 }
 
-table {
+
+mat-table {
   width: 100%;
+  height: 100%;
 }
 
 .example-loading-shade {
@@ -47,3 +58,9 @@ table {
 flex-direction: column;
 flex: 1 1 auto;
 }
+
+
+
+
+
+
