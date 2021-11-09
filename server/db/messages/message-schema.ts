@@ -4,7 +4,7 @@ import { Schema, model } from 'mongoose';
 
 const schema = new Schema<Message>({
     sender: { type: String, required: true, index: true },
-    body: { type: String, default: "", required: true },
+    body: { type: String, default: "" },
     status: { type: String, default: MessageStatus.Pending, required: true, enum: Object.values(MessageStatus) },
     sentDate: { types: String },
     creationDate: { type: String, required: true, default: new Date().toString() }

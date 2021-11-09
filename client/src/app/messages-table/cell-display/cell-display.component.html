@@ -1,0 +1,22 @@
+<ng-container *ngTemplateOutlet="isEditMode ? editTpl : viewTpl"></ng-container>
+
+<ng-template #viewTpl>
+  {{ displayValue }}
+</ng-template>
+
+<ng-template #editTpl>
+  <mat-form-field    appearance="outline">
+    <mat-label>Edit</mat-label>
+    <input
+
+      id="editInput"
+      type="text"
+      matInput
+      [value]="displayValue"
+      focusable
+    />
+    <!-- <mat-error *ngIf="!messageForm.valid">
+    Sender is <strong>required</strong>
+  </mat-error> -->
+  </mat-form-field>
+</ng-template>
