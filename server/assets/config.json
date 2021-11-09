@@ -1,7 +1,6 @@
 {
-    "mongoUrl":  "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false",
-    "expressPort": 8080,
-"minTimeoutSendMessageRange": 1000,
-"maxTimeoutSendMessageRange": 10000
+  "mongoUrl": "mongodb+srv://omer:20030670@cluster0.6cqwx.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+  "expressPort": 8080,
+  "minTimeoutSendMessageRange": 1000,
+  "maxTimeoutSendMessageRange": 10000
 }
- 

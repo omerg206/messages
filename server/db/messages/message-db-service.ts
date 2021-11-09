@@ -29,7 +29,7 @@ export class MessageDbService {
 
             return { messages: docs, totalCount: totalDocLength }
 
-          
+
         }
         catch (error) {
             console.error('error paging getting  messages', error)
@@ -67,15 +67,15 @@ export class MessageDbService {
         }
     }
 
-    private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn,searchAfter, searchBefore, filter = null }: GetMessageParams): any[] {
+    private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn, searchAfter, searchBefore, filter = null }: GetMessageParams): any[] {
         const isPartialSearch: boolean = true;
-      
+
         const query: any = [{
             $facet: {
                 docs: [
-                  
+                    { $sort: { [sortColumn]: MessageSortDirection[direction], _id: 1 } },
                     { $limit: pageSize },
-                    { $sort: { [sortColumn]: MessageSortDirection[direction], _id: 1 } }
+
                 ],
                 totalCount: [
                     { $count: 'totalCount' }
@@ -83,11 +83,13 @@ export class MessageDbService {
             }
         }];
 
-        if (pageNumber !== 0){
-            if (searchAfter){
-                query.unshift({$match: {[sortColumn]: {$gt: searchAfter}}})
+        if (pageNumber !== 0) {
+            if (searchAfter) {
+                console.log('after')
+                query.unshift({ $match: { [sortColumn]: { $gt: searchAfter } } })
             } else if (searchBefore) {
-                query.unshift({$match: {[sortColumn]: {$lt: searchBefore}}})
+                console.log('before', sortColumn, searchBefore)
+                query.unshift({ $match: { [sortColumn]: { $lt: searchBefore } } })
             }
         }
 
@@ -97,8 +99,8 @@ export class MessageDbService {
             if (isPartialSearch) {
                 const partialTextQuery = this.createPartialTextSubQuery(filter);
                 query.unshift(partialTextQuery);
-           
-            } else { 
+
+            } else {
                 query.unshift({ $match: { $text: { $search: `"${filter}"` } } });
             }
         }
@@ -107,13 +109,13 @@ export class MessageDbService {
 
     }
 
-    private createPartialTextSubQuery(filter:string){
-        const textFields:string[] = ['sender', 'body', 'status', 'creationDate'];
-        const partialTextQuery = { $match: {$or: []}};
+    private createPartialTextSubQuery(filter: string) {
+        const textFields: string[] = ['sender', 'body', 'status', 'creationDate'];
+        const partialTextQuery = { $match: { $or: [] } };
 
         textFields.forEach((messageKey: string) => {
-            const regexQuery =  { [messageKey]: {$regex: filter, $options: "i"}};
-            (partialTextQuery['$match']['$or'] as any[]).push(regexQuery );
+            const regexQuery = { [messageKey]: { $regex: filter, $options: "i" } };
+            (partialTextQuery['$match']['$or'] as any[]).push(regexQuery);
         });
 
         return partialTextQuery;
