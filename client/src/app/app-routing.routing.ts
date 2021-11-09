@@ -29,6 +29,12 @@ const routes: Routes = [
       module => module.CreateMessageModule
     )
   },
+  {
+    path: '**',
+    loadChildren: () => import(`./home/home.module`).then(
+      module => module.HomeModule
+    )
+  },
 
 ];
 
