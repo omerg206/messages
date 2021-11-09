@@ -28,7 +28,9 @@ export interface GetMessageParams {
     pageNumber: number;
     sortColumn: keyof Message;
     direction: MessageSortDirection;
-    filter?: string | null
+    filter?: string | null,
+    searchAfter?: string | number | Date;
+    searchBefore?: string | number | Date;
 }
 
 export interface GetPagedMessageResponse {
