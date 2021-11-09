@@ -67,14 +67,13 @@ export class MessageDbService {
         }
     }
 
-    private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn, filter = null }: GetMessageParams): any[] {
+    private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn,searchAfter, searchBefore, filter = null }: GetMessageParams): any[] {
         const isPartialSearch: boolean = true;
       
-
-        const query: any[] = [{
+        const query: any = [{
             $facet: {
                 docs: [
-                    { $skip: pageNumber * pageSize },
+                  
                     { $limit: pageSize },
                     { $sort: { [sortColumn]: MessageSortDirection[direction], _id: 1 } }
                 ],
@@ -83,6 +82,16 @@ export class MessageDbService {
                 ]
             }
         }];
+
+        if (pageNumber !== 0){
+            if (searchAfter){
+                query.unshift({$match: {[sortColumn]: {$gt: searchAfter}}})
+            } else if (searchBefore) {
+                query.unshift({$match: {[sortColumn]: {$lt: searchBefore}}})
+            }
+        }
+
+
 
         if (filter) {
             if (isPartialSearch) {
