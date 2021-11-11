@@ -39,10 +39,10 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
 
-  getMessagesFromServer({ pageNumber = 0, pageSize = 3, sortColumn = 'sender', filter, searchBefore, searchAfter,
+  getMessagesFromServer({ pageNumber = 0, pageSize = 3, sortColumn = 'sender', filter, searchBefore, searchAfter, searchBeforeOrAfterId,
     direction = MessageSortDirection[MessageSortDirection.asc] as any }: Partial<GetMessageParams>) {
     const url = `http://localhost:8080${AppRoutes.endPoint}${AppRoutes.getPagingMessages}`;
-    const stringifiedParams = JSON.stringify({ pageNumber, pageSize, sortColumn, direction, filter, searchAfter, searchBefore });
+    const stringifiedParams = JSON.stringify({ pageNumber, pageSize, sortColumn, direction, filter, searchAfter, searchBefore, searchBeforeOrAfterId });
     const params = new HttpParams().append('directionParams', stringifiedParams);
     this.isLoadingResults = true;
 
@@ -50,7 +50,10 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
     ).pipe(first()).subscribe(
       (data: GetPagedMessageResponse) => {
         this.isLoadingResults = false;
-        this.totalMessagesInServer = data.totalCount
+        if (this.paginator.pageIndex === 0) {
+          this.totalMessagesInServer = data.totalCount
+
+        }
         this.dataSource.data = data.messages;
         this.cd.detectChanges();
       });
@@ -97,14 +100,17 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
     });
   }
 
-  getSearchBeforeOrAfterParam($event: PageEvent): Pick<GetMessageParams, 'searchAfter'> | Pick<GetMessageParams, 'searchBefore'> {
+  getSearchBeforeOrAfterParam($event: PageEvent): Pick<GetMessageParams, 'searchAfter' | 'searchBeforeOrAfterId'> | Pick<GetMessageParams, 'searchBefore' | 'searchBeforeOrAfterId'> {
     const isNextPage = $event.previousPageIndex! < $event.pageIndex;
     const isAscOrder = (this.sort.direction) === MessageSortDirection[MessageSortDirection.asc];
     const beforeOrAfter = ((isAscOrder && isNextPage) || (!isAscOrder && !isNextPage) ? 'searchAfter' : 'searchBefore');
     const itemIndex = isNextPage ? this.dataSource.data.length - 1 : 0;
 
 
-    return { [beforeOrAfter]: this.dataSource.data[itemIndex][this.sort.active as keyof Message] }
+    return {
+      [beforeOrAfter]: this.dataSource.data[itemIndex][this.sort.active as keyof Message],
+      searchBeforeOrAfterId: this.dataSource.data[itemIndex]._id
+    }
   }
 
 

@@ -13,6 +13,7 @@ export interface Message {
     status: MessageStatus,
     creationDate: string;
     sentDate?: undefined | string;
+    _id: string;
 }
 
 
@@ -31,6 +32,7 @@ export interface GetMessageParams {
     filter?: string | null,
     searchAfter?: string | number | Date;
     searchBefore?: string | number | Date;
+    searchBeforeOrAfterId?: string;
 }
 
 export interface GetPagedMessageResponse {
