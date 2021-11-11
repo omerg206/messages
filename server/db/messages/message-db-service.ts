@@ -1,7 +1,7 @@
 import { GetMessageParams, GetPagedMessageResponse, Message, MessageRequiredByUser, MessageStatus, MessageSortDirection } from "../../../shared/messages.model";
 import { configService } from "../../services/config-service";
 import { MessageModel } from "./message-schema";
-
+import { ObjectId } from "mongodb";
 
 
 export class MessageDbService {
@@ -67,13 +67,13 @@ export class MessageDbService {
         }
     }
 
-    private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn, searchAfter, searchBefore, filter = null }: GetMessageParams): any[] {
+    private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn, searchBeforeOrAfterId, searchAfter, searchBefore, filter = null }: GetMessageParams): any[] {
         const isPartialSearch: boolean = true;
-
-        const query: any = [{
+        const sortDocsQuery = { $sort: { [sortColumn]: MessageSortDirection[direction], _id: 1 } };
+        const facetQuey = {
             $facet: {
                 docs: [
-                    { $sort: { [sortColumn]: MessageSortDirection[direction], _id: 1 } },
+                    { ...sortDocsQuery },
                     { $limit: pageSize },
 
                 ],
@@ -81,16 +81,48 @@ export class MessageDbService {
                     { $count: 'totalCount' }
                 ]
             }
-        }];
+        };
+
+        const query: any = [facetQuey];
 
         if (pageNumber !== 0) {
             if (searchAfter) {
-                console.log('after')
-                query.unshift({ $match: { [sortColumn]: { $gt: searchAfter } } })
+                query.unshift({ $match: { [sortColumn]: { $gte: searchAfter } } });
+                (sortDocsQuery.$sort as any)[sortColumn] = MessageSortDirection.asc;
+                (facetQuey['$facet']['docs'] as any[]).unshift({
+                    $match: {
+                        $or: [
+                            { [sortColumn]: { $gt: searchAfter } },
+                            {
+                                $and: [
+                                    { [sortColumn]: { $eq: searchAfter } },
+                                    { _id: { $gt: new ObjectId(searchBeforeOrAfterId) } },
+                                ]
+                            }
+                        ]
+                    }
+                })
+                console.log(JSON.stringify((facetQuey as any)['docs']))
+
             } else if (searchBefore) {
-                console.log('before', sortColumn, searchBefore)
-                query.unshift({ $match: { [sortColumn]: { $lt: searchBefore } } })
+                query.unshift({ $match: { [sortColumn]: { $lte: searchBefore } } });
+                (sortDocsQuery.$sort as any)[sortColumn] = MessageSortDirection.desc;
+
+                (facetQuey['$facet']['docs'] as any[]).unshift({
+                    $match: {
+                        $or: [
+                            { [sortColumn]: { $lt: searchBefore } },
+                            {
+                                $and: [
+                                    { [sortColumn]: { $eq: searchBefore } },
+                                    { _id: { $gt: new ObjectId(searchBeforeOrAfterId) } },
+                                ]
+                            }
+                        ]
+                    }
+                })
             }
+            console.log(JSON.stringify((facetQuey as any)['docs']))
         }
 
 
@@ -104,7 +136,7 @@ export class MessageDbService {
                 query.unshift({ $match: { $text: { $search: `"${filter}"` } } });
             }
         }
-
+        console.log(query[0])
         return query;
 
     }
