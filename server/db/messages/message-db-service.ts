@@ -69,13 +69,13 @@ export class MessageDbService {
 
     private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn, searchBeforeOrAfterId, searchAfter, searchBefore, filter = null }: GetMessageParams): any[] {
         const isPartialSearch: boolean = true;
-        const sortDocsQuery = { $sort: { [sortColumn]: MessageSortDirection[direction], _id: 1 } };
+        const sortDocsQuery = { $sort: { [sortColumn]: MessageSortDirection[direction], _id: MessageSortDirection[direction] } };
         const facetQuey = {
             $facet: {
                 docs: [
                     { ...sortDocsQuery },
                     { $limit: pageSize },
-
+                    { $sort: { [sortColumn]: MessageSortDirection[direction], _id: MessageSortDirection[direction] } }
                 ],
                 totalCount: [
                     { $count: 'totalCount' }
@@ -87,16 +87,17 @@ export class MessageDbService {
 
         if (pageNumber !== 0) {
             if (searchAfter) {
-                query.unshift({ $match: { [sortColumn]: { $gte: searchAfter } } });
-                (sortDocsQuery.$sort as any)[sortColumn] = MessageSortDirection.asc;
+                const GtOrLt = MessageSortDirection[direction] as any === MessageSortDirection.asc ? 'gt' : 'lt';
+
+                query.unshift({ $match: { [sortColumn]: { [`$${GtOrLt}e`]: searchAfter } } });
                 (facetQuey['$facet']['docs'] as any[]).unshift({
                     $match: {
                         $or: [
-                            { [sortColumn]: { $gt: searchAfter } },
+                            { [sortColumn]: { [`$${GtOrLt}`]: searchAfter } },
                             {
                                 $and: [
                                     { [sortColumn]: { $eq: searchAfter } },
-                                    { _id: { $gt: new ObjectId(searchBeforeOrAfterId) } },
+                                    { _id: { [`$${GtOrLt}`]: new ObjectId(searchBeforeOrAfterId) } },
                                 ]
                             }
                         ]
@@ -105,24 +106,25 @@ export class MessageDbService {
                 console.log(JSON.stringify((facetQuey as any)['docs']))
 
             } else if (searchBefore) {
-                query.unshift({ $match: { [sortColumn]: { $lte: searchBefore } } });
-                (sortDocsQuery.$sort as any)[sortColumn] = MessageSortDirection.desc;
+                const GtOrLt = MessageSortDirection[direction] as any === MessageSortDirection.asc ? 'lt' : 'gt';
+                const sortAfterDirection = MessageSortDirection[direction] as any === MessageSortDirection.asc ? MessageSortDirection.desc : MessageSortDirection.asc;
+                query.unshift({ $match: { [sortColumn]: { [`$${GtOrLt}e`]: searchBefore } } });
+                (sortDocsQuery.$sort as any)[sortColumn] = sortAfterDirection;
 
                 (facetQuey['$facet']['docs'] as any[]).unshift({
                     $match: {
                         $or: [
-                            { [sortColumn]: { $lt: searchBefore } },
+                            { [sortColumn]: { [`$${GtOrLt}`]: searchBefore } },
                             {
                                 $and: [
                                     { [sortColumn]: { $eq: searchBefore } },
-                                    { _id: { $gt: new ObjectId(searchBeforeOrAfterId) } },
+                                    { _id: { [`$${GtOrLt}`]: new ObjectId(searchBeforeOrAfterId) } },
                                 ]
                             }
                         ]
                     }
                 })
             }
-            console.log(JSON.stringify((facetQuey as any)['docs']))
         }
 
 

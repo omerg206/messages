@@ -102,8 +102,7 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
 
   getSearchBeforeOrAfterParam($event: PageEvent): Pick<GetMessageParams, 'searchAfter' | 'searchBeforeOrAfterId'> | Pick<GetMessageParams, 'searchBefore' | 'searchBeforeOrAfterId'> {
     const isNextPage = $event.previousPageIndex! < $event.pageIndex;
-    const isAscOrder = (this.sort.direction) === MessageSortDirection[MessageSortDirection.asc];
-    const beforeOrAfter = ((isAscOrder && isNextPage) || (!isAscOrder && !isNextPage) ? 'searchAfter' : 'searchBefore');
+    const beforeOrAfter = isNextPage ? 'searchAfter' : 'searchBefore';
     const itemIndex = isNextPage ? this.dataSource.data.length - 1 : 0;
 
 
