@@ -1,0 +1,21 @@
+version: "3.7"
+
+services:
+  angular-frontend:
+    container_name: frontend-portal
+    build:
+      context: .
+      dockerfile: ./client/dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+  backend:
+    container_name: server
+    build:
+      context: .
+      dockerfile: ./server/dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production

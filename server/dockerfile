@@ -1,0 +1,21 @@
+FROM mhart/alpine-node:12 as build
+
+# create root application folder
+WORKDIR /app
+
+RUN mkdir  ./server
+
+# copy configs to /app folder
+COPY ./server/package*.json ./server
+COPY ./server/tsconfig.json ./server
+# copy source code to /app/src folder
+COPY ./server /app/server
+COPY shared /app/shared
+
+
+RUN npm  --prefix ./server install
+RUN npm --prefix ./server run build
+
+EXPOSE 8080
+
+CMD [ "npm", "--prefix", "./server", "run", "start" ]

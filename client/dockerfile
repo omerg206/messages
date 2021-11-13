@@ -1,0 +1,18 @@
+FROM  mhart/alpine-node:12 as build
+WORKDIR /app
+RUN mkdir  ./client
+COPY client/package*.json /app/client
+RUN npm --prefix ./client install
+ADD client /app/client/
+ARG configuration=production
+COPY shared /app/shared
+RUN npm --prefix ./client run build -- --outputPath=./dist/out --configuration $configuration
+# Stage 2, use the compiled app, ready for production with Nginx
+FROM nginx
+COPY --from=build /app/client/dist/out/ /usr/share/nginx/html
+RUN rm /etc/nginx/conf.d/default.conf
+ADD ./client/nginx/nginx.conf /etc/nginx/conf.d
+
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
