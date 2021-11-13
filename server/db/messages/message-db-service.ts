@@ -67,6 +67,25 @@ export class MessageDbService {
         }
     }
 
+    async updateASingleMessageProp(id: string, newValue: Partial<Message>) {
+        try {
+            const res = await MessageModel.findOneAndUpdate(
+                { _id: id }, { $set: { ...newValue } }, { returnDocument: 'after' }
+            );
+
+            if (!res) {
+                throw new Error(`could not update doc ${id} with values ${JSON.stringify(newValue)}`)
+            }
+
+
+            return (res as any)._doc;
+        }
+        catch (error) {
+            console.error(`error updating message prop ${newValue}`, error)
+            throw (error)
+        }
+    }
+
     private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn, searchBeforeOrAfterId, searchAfter, searchBefore, filter = null }: GetMessageParams): any[] {
         const isPartialSearch: boolean = true;
         const sortDocsQuery = { $sort: { [sortColumn]: MessageSortDirection[direction], _id: MessageSortDirection[direction] } };

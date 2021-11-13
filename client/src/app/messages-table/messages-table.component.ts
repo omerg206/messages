@@ -1,14 +1,25 @@
-
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef } from '@angular/core';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort, Sort, SortDirection } from '@angular/material/sort';
-import { fromEvent, merge, Observable, of, Subject } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, first, map, startWith, switchMap, takeUntil } from 'rxjs/operators';
-import { MatTableDataSource } from '@angular/material/table';
+import { ServerMessageCommunicationService } from './services/server-message-communication.service';
 import { TitleCasePipe } from '@angular/common';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { fromEvent, Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, first, map, takeUntil } from 'rxjs/operators';
+
+import { GetMessageParams, GetPagedMessageResponse, Message, MessageSortDirection } from '../../../../shared/messages.model';
 import { AppRoutes } from '../../../../shared/routes.model';
-import { Message, GetMessageParams, MessageSortDirection, GetPagedMessageResponse } from '../../../../shared/messages.model';
+
 
 
 
@@ -31,7 +42,7 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
   @ViewChild('filter') filter!: ElementRef;
 
 
-  constructor(private _httpClient: HttpClient, private titleCasePipe: TitleCasePipe,
+  constructor(private _httpClient: HttpClient, private serverMessageCommunicationService: ServerMessageCommunicationService,
     private cd: ChangeDetectorRef) { }
 
 
@@ -39,15 +50,11 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
 
-  getMessagesFromServer({ pageNumber = 0, pageSize = 3, sortColumn = 'sender', filter, searchBefore, searchAfter, searchBeforeOrAfterId,
-    direction = MessageSortDirection[MessageSortDirection.asc] as any }: Partial<GetMessageParams>) {
-    const url = `http://localhost:8080${AppRoutes.endPoint}${AppRoutes.getPagingMessages}`;
-    const stringifiedParams = JSON.stringify({ pageNumber, pageSize, sortColumn, direction, filter, searchAfter, searchBefore, searchBeforeOrAfterId });
-    const params = new HttpParams().append('directionParams', stringifiedParams);
+  getMessagesFromServer(messageParams: Partial<GetMessageParams>) {
     this.isLoadingResults = true;
 
-    this._httpClient.get<GetPagedMessageResponse>(url, { params }
-    ).pipe(first()).subscribe(
+    this.serverMessageCommunicationService.getMessagesFromServer(messageParams)
+    .pipe(first()).subscribe(
       (data: GetPagedMessageResponse) => {
         this.isLoadingResults = false;
         if (this.paginator.pageIndex === 0) {
@@ -113,6 +120,24 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
 
+  onCellEdit(newValue: Partial<Message> & Pick<Message, '_id'>) {
+    this.serverMessageCommunicationService.updateSingleMessagePropInServer(newValue).pipe(first()).subscribe(
+      (updatedMessage: Message) => {
+        const index = this.dataSource.data.findIndex((msg: Message) => msg._id === updatedMessage._id);
+
+        if (index === -1) {
+          console.error(`updated message doc  does not match any existing doc ${updatedMessage}`)
+        } else {
+          let data: null | Message[] = [...this.dataSource.data];
+          data[index] = updatedMessage;
+          this.dataSource.data = [];
+          this.dataSource.data = data;
+          data = null;
+        }
+      }, (error: any) => {
+        console.log(error)
+      });
+  }
 
   trackMessage(index: number, item: Message): string {
     return (item as Message & { _id: string })._id

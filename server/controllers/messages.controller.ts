@@ -1,5 +1,5 @@
-import { MessageRequiredByUser, GetMessageParams } from "../../shared/messages.model";
-import {  MessageDbService } from "../db/messages/message-db-service";
+import { MessageRequiredByUser, GetMessageParams, Message } from '../../shared/messages.model';
+import { MessageDbService } from "../db/messages/message-db-service";
 
 
 
@@ -19,5 +19,9 @@ export async function getMessageStatus(messagesService: MessageDbService, messag
 
 export async function getPagingMessages(messagesService: MessageDbService, pagingParams: GetMessageParams,) {
     return messagesService.getPagingMessages(pagingParams);
+}
+
+export async function updateASingleMessageProp(messagesService: MessageDbService, id: string, newMessagePropValue: Partial<Message>) {
+    return messagesService.updateASingleMessageProp(id, newMessagePropValue);
 }
 

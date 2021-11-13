@@ -1,6 +1,6 @@
 import { GetPagedMessageResponse } from './../../shared/messages.model';
 import { Response, Request, NextFunction } from 'express'
-import { getAllMessages, getMessageStatus, getPagingMessages, saveNewMessage } from '../controllers/messages.controller';
+import { getAllMessages, getMessageStatus, getPagingMessages, saveNewMessage, updateASingleMessageProp } from '../controllers/messages.controller';
 import { messageDbService } from '../db/messages/message-db-service';
 import { body, validationResult, query } from 'express-validator';
 import { AppRoutes } from '../../shared/routes.model';
@@ -68,9 +68,18 @@ router.post(AppRoutes.saveMessage, async function (req: Request, res: Response, 
 
 })
 
+router.patch(AppRoutes.updateSingleMessageProp, async function (req: Request, res: Response, next: NextFunction) {
+    try {
+        const { _id, ...newValues } = req.body;
+        const updatedDoc = await updateASingleMessageProp(messageDbService, _id, newValues);
+
+        return res.status(200).json({ ...updatedDoc });
+    } catch (error) {
+        return next(error)
+    }
+
+})
+
 
 module.exports = router;
 
-function MessageSortDirection(MessageSortDirection: any): readonly any[] {
-    throw new Error('Function not implemented.');
-}

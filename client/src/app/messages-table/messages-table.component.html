@@ -31,8 +31,10 @@
           *matCellDef="let element"
         >
           <app-cell-display
+          [messageId]="element._id"
             [displayKey]="column"
             [displayValue]="element[column]"
+            (editEnd)="onCellEdit($event)"
           ></app-cell-display>
         </mat-cell>
       </ng-container>

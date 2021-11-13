@@ -10,6 +10,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { CellDisplayComponent } from './cell-display/cell-display.component';
 import { FocusableDirective } from './cell-display/directives/focusable.directive';
+import { ServerMessageCommunicationService } from './services/server-message-communication.service';
 
 
 const routes: Routes = [
@@ -37,7 +38,7 @@ const routes: Routes = [
     ReactiveFormsModule,
     RouterModule.forChild(routes)
   ],
-  providers: [TitleCasePipe],
+  providers: [TitleCasePipe, ServerMessageCommunicationService],
   exports: [ RouterModule]
 })
 export class MessagesTableModule { }

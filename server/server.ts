@@ -21,8 +21,9 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(errorHandlerMiddleware)
+
 app.use(AppRoutes.endPoint, routes)
+app.use(errorHandlerMiddleware);
 
 async function main() {
     await connectToMongoDb();
@@ -31,7 +32,7 @@ async function main() {
         console.log(`CORS-enabled web server listening on port ${configService.config.expressPort}`)
     })
 
-   }
+}
 
 
 
