@@ -1,6 +1,6 @@
 import { GetPagedMessageResponse } from './../../shared/messages.model';
 import { Response, Request, NextFunction } from 'express'
-import { getAllMessages, getMessageStatus, getPagingMessages, saveNewMessage, updateASingleMessageProp } from '../controllers/messages.controller';
+import { getAllMessages, getMessageStatus, getPagingMessages, saveNewMessage, getMessagePropDefinition, updateASingleMessageProp } from '../controllers/messages.controller';
 import { messageDbService } from '../db/messages/message-db-service';
 import { body, validationResult, query } from 'express-validator';
 import { AppRoutes } from '../../shared/routes.model';
@@ -80,6 +80,19 @@ router.patch(AppRoutes.updateSingleMessageProp, async function (req: Request, re
 
 })
 
+router.get(AppRoutes.getMessagePropDefinitions, function (req: Request, res: Response, next: NextFunction) {
+    try {
+
+        const messageDefinition = getMessagePropDefinition(messageDbService);
+
+        return res.status(200).json({ messageDefinition });
+    } catch (error) {
+        return next(error)
+    }
+
+})
 
 module.exports = router;
+
+
 

@@ -11,7 +11,7 @@ export interface Message {
     sender: string;
     body: string;
     status: MessageStatus,
-    creationDate: string;
+    creationDate: Date;
     sentDate?: undefined | string;
     _id: string;
 }
@@ -39,3 +39,9 @@ export interface GetPagedMessageResponse {
     messages: Message[],
     totalCount: number
 }
+
+export interface GetMessagePropDefinitionResponse {
+    messageDefinition: { [key: string]: Object }
+}
+
+export type SingleMessagePropDefinition = { required?: boolean, enum?: string[], type: string };

@@ -25,3 +25,9 @@ export async function updateASingleMessageProp(messagesService: MessageDbService
     return messagesService.updateASingleMessageProp(id, newMessagePropValue);
 }
 
+export function getMessagePropDefinition(messagesService: MessageDbService) {
+    return messagesService.getMessagePropDefinition();
+}
+
+
+

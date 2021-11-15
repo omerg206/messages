@@ -1,11 +1,25 @@
 <ng-container *ngTemplateOutlet="isEditMode ? editTpl : viewTpl"></ng-container>
 
-<ng-template #viewTpl>
-  {{ displayValue }}
+<ng-template [ngSwitch]="formDefinition.type" #editTpl>
+  <ng-container *ngSwitchCase="'input'">
+    <ng-container *ngTemplateOutlet="InputTpl"></ng-container>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'select'">
+    <ng-container *ngTemplateOutlet="selectTpl"></ng-container>
+  </ng-container>
+
+  <ng-container *ngSwitchCase="'datepicker'">
+    <ng-container *ngTemplateOutlet="datepickerTpl"></ng-container>
+  </ng-container>
 </ng-template>
 
-<ng-template #editTpl>
-  <mat-form-field   appearance="outline">
+<ng-template #viewTpl>
+  <span id="view">{{ displayValue }}</span>
+</ng-template>
+
+<ng-template #InputTpl>
+  <mat-form-field appearance="outline">
     <mat-label>Edit</mat-label>
     <input
       #editableInput
@@ -18,5 +32,43 @@
     <!-- <mat-error *ngIf="!messageForm.valid">
     Sender is <strong>required</strong>
   </mat-error> -->
+  </mat-form-field>
+</ng-template>
+
+<ng-template #selectTpl>
+  <mat-form-field appearance="fill" id="select">
+    <mat-label>Edit</mat-label>
+    <mat-select
+      focusable
+      [formControl]="control"
+      (opened)="onOpen($event)"
+      (closed)="onClose($event)"
+    >
+      <mat-option
+        *ngFor="let option of formDefinition.selectionValues"
+        [value]="option"
+        >{{ option }}</mat-option
+      >
+    </mat-select>
+  </mat-form-field>
+</ng-template>
+
+<ng-template #datepickerTpl>
+  <mat-form-field class="example-full-width" appearance="fill">
+    <mat-label>Choose a date</mat-label>
+    <input matInput [matDatepicker]="picker" [value]="displayValue" />
+    <mat-datepicker-toggle
+      matSuffix
+      [for]="picker"
+      (click)="onOpen($event)"
+      (opened)="onOpen($event)"
+    ></mat-datepicker-toggle>
+    <mat-datepicker
+      disabled="false"
+      #picker
+      (viewChanged)="onOpen($event)"
+      (opened)="onOpen($event)"
+      (closed)="onClose($event)"
+    ></mat-datepicker>
   </mat-form-field>
 </ng-template>

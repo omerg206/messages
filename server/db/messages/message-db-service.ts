@@ -1,12 +1,28 @@
 import { GetMessageParams, GetPagedMessageResponse, Message, MessageRequiredByUser, MessageStatus, MessageSortDirection } from "../../../shared/messages.model";
 import { configService } from "../../services/config-service";
-import { MessageModel } from "./message-schema";
+import { MessageModel, MessageDefinitions } from './message-schema';
 import { ObjectId } from "mongodb";
-
+import { cloneDeep, forEach } from 'lodash'
+import { SchemaDefinition, SchemaDefinitionProperty, SchemaDefinitionType, SchemaType } from "mongoose";
 
 export class MessageDbService {
 
-    constructor() { }
+    constructor() {
+    }
+
+
+
+    getMessagePropDefinition() {
+        const definitions: SchemaDefinition<SchemaDefinitionType<Message>> = cloneDeep(MessageDefinitions);
+        forEach(definitions, (ele: any, key: string) => {
+            delete ele['default'];
+            ele.type = ele.enum ? 'Enum' : ele.type.schemaName;
+        });
+
+        return definitions;
+    }
+
+
 
 
     async getAllMessages(): Promise<Array<Message>> {

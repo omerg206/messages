@@ -1,6 +1,5 @@
+import { GetMessagePropDefinitionResponse } from './../../../../shared/messages.model';
 import { ServerMessageCommunicationService } from './services/server-message-communication.service';
-import { TitleCasePipe } from '@angular/common';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -16,11 +15,10 @@ import { MatSort, Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { fromEvent, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, first, map, takeUntil } from 'rxjs/operators';
-
-import { GetMessageParams, GetPagedMessageResponse, Message, MessageSortDirection } from '../../../../shared/messages.model';
-import { AppRoutes } from '../../../../shared/routes.model';
-
-
+import { GetMessageParams, GetPagedMessageResponse, Message, MessageSortDirection, SingleMessagePropDefinition } from '../../../../shared/messages.model';
+import { reduce } from 'lodash';
+import { MessageForm, TypeToMessageForm, SupportedMessagePropTypes } from './model/message-forms';
+import { MessageFormDefinitionService } from 'src/app/messages-table/services/message-form-definition.service';
 
 
 @Component({
@@ -31,19 +29,19 @@ import { AppRoutes } from '../../../../shared/routes.model';
 })
 export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy {
   displayedColumns: Array<keyof Message> = ['sender', 'creationDate', 'body', 'status',];
-  data: Message[] = [];
   totalMessagesInServer = 0;
   isLoadingResults = true;
-  destroy$: Subject<void> = new Subject<void>();
-  dataSource: MatTableDataSource<Message> = new MatTableDataSource(this.data);
+  dataSource: MatTableDataSource<Message> = new MatTableDataSource([] as Message[]);
+  messagePropDefinitions!: Record<string, MessageForm>;
+  private destroy$: Subject<void> = new Subject<void>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild('filter') filter!: ElementRef;
 
 
-  constructor(private _httpClient: HttpClient, private serverMessageCommunicationService: ServerMessageCommunicationService,
-    private cd: ChangeDetectorRef) { }
+  constructor(private serverMessageCommunicationService: ServerMessageCommunicationService,
+    private cd: ChangeDetectorRef, private messageFormDefinitionService: MessageFormDefinitionService) { }
 
 
   ngOnInit(): void {
@@ -54,16 +52,16 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
     this.isLoadingResults = true;
 
     this.serverMessageCommunicationService.getMessagesFromServer(messageParams)
-    .pipe(first()).subscribe(
-      (data: GetPagedMessageResponse) => {
-        this.isLoadingResults = false;
-        if (this.paginator.pageIndex === 0) {
-          this.totalMessagesInServer = data.totalCount
+      .pipe(first()).subscribe(
+        (data: GetPagedMessageResponse) => {
+          this.isLoadingResults = false;
+          if (this.paginator.pageIndex === 0) {
+            this.totalMessagesInServer = data.totalCount
 
-        }
-        this.dataSource.data = data.messages;
-        this.cd.detectChanges();
-      });
+          }
+          this.dataSource.data = data.messages;
+          this.cd.detectChanges();
+        });
 
   }
 
@@ -73,6 +71,7 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
     // this.dataSource.sort = this.sort;
     // this.sort.active = 'sernder';
     // this.sort.direction = 'asc'
+    this.getMessagePropDefinitionsFromServer();
 
     fromEvent(this.filter.nativeElement, 'keyup')
       .pipe(debounceTime(300),
@@ -107,19 +106,6 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
     });
   }
 
-  getSearchBeforeOrAfterParam($event: PageEvent): Pick<GetMessageParams, 'searchAfter' | 'searchBeforeOrAfterId'> | Pick<GetMessageParams, 'searchBefore' | 'searchBeforeOrAfterId'> {
-    const isNextPage = $event.previousPageIndex! < $event.pageIndex;
-    const beforeOrAfter = isNextPage ? 'searchAfter' : 'searchBefore';
-    const itemIndex = isNextPage ? this.dataSource.data.length - 1 : 0;
-
-
-    return {
-      [beforeOrAfter]: this.dataSource.data[itemIndex][this.sort.active as keyof Message],
-      searchBeforeOrAfterId: this.dataSource.data[itemIndex]._id
-    }
-  }
-
-
   onCellEdit(newValue: Partial<Message> & Pick<Message, '_id'>) {
     this.serverMessageCommunicationService.updateSingleMessagePropInServer(newValue).pipe(first()).subscribe(
       (updatedMessage: Message) => {
@@ -139,9 +125,29 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
       });
   }
 
+
   trackMessage(index: number, item: Message): string {
     return (item as Message & { _id: string })._id
   }
+
+  private getSearchBeforeOrAfterParam($event: PageEvent): Pick<GetMessageParams, 'searchAfter' | 'searchBeforeOrAfterId'> | Pick<GetMessageParams, 'searchBefore' | 'searchBeforeOrAfterId'> {
+    const isNextPage = $event.previousPageIndex! < $event.pageIndex;
+    const beforeOrAfter = isNextPage ? 'searchAfter' : 'searchBefore';
+    const itemIndex = isNextPage ? this.dataSource.data.length - 1 : 0;
+
+    return {
+      [beforeOrAfter]: this.dataSource.data[itemIndex][this.sort.active as keyof Message],
+      searchBeforeOrAfterId: this.dataSource.data[itemIndex]._id
+    }
+  }
+
+  private getMessagePropDefinitionsFromServer() {
+    this.serverMessageCommunicationService.getMessagesProp().pipe(takeUntil(this.destroy$))
+      .subscribe((definitions: GetMessagePropDefinitionResponse) => {
+        this.messagePropDefinitions = this.messageFormDefinitionService.createFormDefinitionsForMessageProps(definitions);
+      })
+  }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

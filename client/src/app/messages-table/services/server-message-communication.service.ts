@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { first } from 'rxjs/operators';
-import { GetPagedMessageResponse, Message } from '../../../../../shared/messages.model';
+import { GetMessagePropDefinitionResponse, GetPagedMessageResponse, Message } from '../../../../../shared/messages.model';
 import { MessageSortDirection, GetMessageParams } from '../../../../../shared/messages.model';
 import { AppRoutes } from '../../../../../shared/routes.model';
 import { Observable } from 'rxjs';
@@ -12,6 +12,13 @@ export class ServerMessageCommunicationService {
 
 
   constructor(private _httpClient: HttpClient) { }
+
+  getMessagesProp(): Observable<GetMessagePropDefinitionResponse>{
+    const url = `${this.serverUrl}${AppRoutes.getMessagePropDefinitions}`;
+
+    return this._httpClient.get<GetMessagePropDefinitionResponse>(url,
+      ).pipe(first())
+  }
 
   getMessagesFromServer(pagedMessagesParams: Partial<GetMessageParams>): Observable<GetPagedMessageResponse> {
     const url = `${this.serverUrl}${AppRoutes.getPagingMessages}`;

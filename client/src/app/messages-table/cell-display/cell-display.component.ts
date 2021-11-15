@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, HostListener, EventEmitter, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Input, HostListener, EventEmitter, Output, ViewChild, ElementRef, TemplateRef, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { Message } from '../../../../../shared/messages.model';
+import { MessageForm } from '../model/message-forms';
+import { FormControl } from '@angular/forms';
 
-const EditableMessageKeys: Array<keyof Message> = ["sender", "body"]
+const EditableMessageKeys: Array<keyof Message> = ["sender", "body", 'status']
 
 @Component({
   selector: 'app-cell-display',
@@ -10,25 +12,22 @@ const EditableMessageKeys: Array<keyof Message> = ["sender", "body"]
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CellDisplayComponent implements OnInit {
-  @Input() set displayKey(key: keyof Message) {
-    this._displayKey = key;
-    this.isKeyEditable = EditableMessageKeys.includes(key)
-  }
-
+  @Input() displayKey!: keyof Message;
   @Input() messageId!: string;
   @Input() displayValue: string | number | Date | null | undefined;
+  @Input() formDefinition!: MessageForm;
   @Output() editEnd: EventEmitter<Partial<Message> & Pick<Message, '_id'>> = new EventEmitter<Partial<Message> & Pick<Message, '_id'>>();
 
-  @ViewChild('editableInput') editableInput!: ElementRef;
+  @ViewChildren(TemplateRef) templates!: QueryList<TemplateRef<any>>;
 
   isEditMode: boolean = false;
-  isKeyEditable: boolean = false;
-  _displayKey!: keyof Message;
-
+  isOpen: boolean = false //select only
+  control: FormControl = new FormControl();
+  currentDisplayedTpl!: TemplateRef<any>;
 
   @HostListener('dblclick', ['$event'])
   onDbClick($event: Event) {
-    if (this.isKeyEditable) {
+    if (this.formDefinition.isEditable) {
       this.isEditMode = true;
     }
 
@@ -36,23 +35,36 @@ export class CellDisplayComponent implements OnInit {
 
   @HostListener('focusout', ['$event'])
   onFocusOut($event: Event) {
-    this.isEditMode = false;
-    const currentInputValue = this.editableInput.nativeElement.value;
-    if (this.displayValue != currentInputValue) {
-      this.editEnd.emit(
-        {
-          _id: this.messageId,
-          [this._displayKey]: this.convertEditInputValueToMessagePropType(currentInputValue)
-        }
-      );
-    }
+    if (!this.isOpen) {
+      const currentInputValue = this.control.value;
+      if (this.displayValue != currentInputValue) {
+        this.editEnd.emit(
+          {
+            _id: this.messageId,
+            [this.displayKey]: this.convertEditInputValueToMessagePropType(currentInputValue)
+          }
+        );
+      }
 
+      this.isEditMode = false;
+    }
 
   }
 
   constructor() { }
 
   ngOnInit(): void {
+    this.control.setValue(this.displayValue);
+
+
+  }
+
+  onOpen($event: any) {
+    this.isOpen = true;
+  }
+
+  onClose($event: any) {
+    this.isOpen = false;
   }
 
   convertEditInputValueToMessagePropType(newEditInputValue: string): Date | string | number {
@@ -65,7 +77,6 @@ export class CellDisplayComponent implements OnInit {
     }
 
     return res;
-
   }
 
 }
