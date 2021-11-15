@@ -1,5 +1,5 @@
-<div class="example-table-container mat-elevation-z8">
-  <mat-form-field appearance="standard">
+<div class="example-table-container mat-elevation-z24">
+  <mat-form-field appearance="fill" class="table-filter">
     <mat-label>Filter</mat-label>
     <input matInput #filter />
   </mat-form-field>
@@ -31,7 +31,7 @@
           *matCellDef="let element"
         >
           <app-cell-display
-          [messageId]="element._id"
+            [messageId]="element._id"
             [displayKey]="column"
             [displayValue]="element[column]"
             [formDefinition]="messagePropDefinitions[column]"

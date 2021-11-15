@@ -11,6 +11,7 @@
   flex-direction: column;
   height:0px;
   flex: 1 1 auto;
+  margin: 1%;
 }
 
 .table-container {
@@ -19,7 +20,10 @@
   overflow: auto;
 }
 
+.table-filter{
+  width: fit-content;
 
+}
 mat-table {
   width: 100%;
   height: 100%;
