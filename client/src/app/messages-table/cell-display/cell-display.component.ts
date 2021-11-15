@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, Input, HostListener, EventE
 import { Message } from '../../../../../shared/messages.model';
 import { MessageForm } from '../model/message-forms';
 import { FormControl } from '@angular/forms';
+import { isEqual } from 'lodash'
 
 const EditableMessageKeys: Array<keyof Message> = ["sender", "body", 'status']
 
@@ -17,7 +18,7 @@ export class CellDisplayComponent implements OnInit {
   @Input() displayValue: string | number | Date | null | undefined;
   @Input() formDefinition!: MessageForm;
   @Output() editEnd: EventEmitter<Partial<Message> & Pick<Message, '_id'>> = new EventEmitter<Partial<Message> & Pick<Message, '_id'>>();
-
+  temp: any[] = [];
   @ViewChildren(TemplateRef) templates!: QueryList<TemplateRef<any>>;
 
   isEditMode: boolean = false;
@@ -38,6 +39,7 @@ export class CellDisplayComponent implements OnInit {
     if (!this.isOpen) {
       const currentInputValue = this.control.value;
       if (this.displayValue != currentInputValue) {
+
         this.editEnd.emit(
           {
             _id: this.messageId,
@@ -60,11 +62,27 @@ export class CellDisplayComponent implements OnInit {
   }
 
   onOpen($event: any) {
+    if ($event) {
+      $event.stopPropagation()
+      $event.preventDefault()
+    }
+
     this.isOpen = true;
+
+
   }
 
   onClose($event: any) {
     this.isOpen = false;
+  }
+
+  onFocusOut2($event: any) {
+    if ($event.relatedTarget) {
+      this.isOpen = true;
+      $event.stopPropagation();
+      $event.preventDefault()
+    }
+
   }
 
   convertEditInputValueToMessagePropType(newEditInputValue: string): Date | string | number {
