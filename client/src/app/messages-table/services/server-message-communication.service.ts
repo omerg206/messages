@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { first } from 'rxjs/operators';
-import { GetMessagePropDefinitionResponse, GetPagedMessageResponse, Message } from '../../../../../shared/messages.model';
+import { DeleteMessageResponse, GetMessagePropDefinitionResponse, GetPagedMessageResponse, Message } from '../../../../../shared/messages.model';
 import { MessageSortDirection, GetMessageParams } from '../../../../../shared/messages.model';
 import { AppRoutes } from '../../../../../shared/routes.model';
 import { Observable } from 'rxjs';
@@ -13,11 +13,11 @@ export class ServerMessageCommunicationService {
 
   constructor(private _httpClient: HttpClient) { }
 
-  getMessagesProp(): Observable<GetMessagePropDefinitionResponse>{
+  getMessagesProp(): Observable<GetMessagePropDefinitionResponse> {
     const url = `${this.serverUrl}${AppRoutes.getMessagePropDefinitions}`;
 
     return this._httpClient.get<GetMessagePropDefinitionResponse>(url,
-      ).pipe(first())
+    ).pipe(first())
   }
 
   getMessagesFromServer(pagedMessagesParams: Partial<GetMessageParams>): Observable<GetPagedMessageResponse> {
@@ -33,6 +33,14 @@ export class ServerMessageCommunicationService {
   updateSingleMessagePropInServer(newValue: Partial<Message> & Pick<Message, '_id'>): Observable<Message> {
     return this._httpClient.patch<Message>(`${this.serverUrl}${AppRoutes.updateSingleMessageProp}`,
       { ...newValue }
+    ).pipe(first())
+  }
+
+  deleteMessage({ _id }: Message): Observable<DeleteMessageResponse> {
+    const options = { params: new HttpParams().set('toDeleteId', _id) };
+
+    return this._httpClient.delete<DeleteMessageResponse>(`${this.serverUrl}${AppRoutes.deleteMessage}`,
+      options
     ).pipe(first())
   }
 

@@ -25,6 +25,11 @@ export async function updateASingleMessageProp(messagesService: MessageDbService
     return messagesService.updateASingleMessageProp(id, newMessagePropValue);
 }
 
+export async function deleteMessage(messagesService: MessageDbService, id: string) {
+    return messagesService.deleteMessage(id);
+}
+
+
 export function getMessagePropDefinition(messagesService: MessageDbService) {
     return messagesService.getMessagePropDefinition();
 }

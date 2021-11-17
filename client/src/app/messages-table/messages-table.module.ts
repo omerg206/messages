@@ -15,6 +15,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MessageFormDefinitionService } from 'src/app/messages-table/services/message-form-definition.service';
+import { ContextMenuModule } from 'src/app/conext-menu/context-menu.module';
+import { MatMenuModule } from '@angular/material/menu';
 
 
 const routes: Routes = [
@@ -43,7 +45,9 @@ const routes: Routes = [
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    RouterModule.forChild(routes)
+    MatMenuModule,
+    RouterModule.forChild(routes),
+    ContextMenuModule
   ],
   providers: [TitleCasePipe, ServerMessageCommunicationService, MessageFormDefinitionService],
   exports: [RouterModule]

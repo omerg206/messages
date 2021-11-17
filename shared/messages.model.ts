@@ -45,3 +45,6 @@ export interface GetMessagePropDefinitionResponse {
 }
 
 export type SingleMessagePropDefinition = { required?: boolean, enum?: string[], type: string };
+
+export interface DeleteMessageResponse 
+ {deletedId: string};

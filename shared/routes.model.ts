@@ -5,5 +5,6 @@ export enum AppRoutes {
     getPagingMessages = '/getPagingMessages',
     getMessageStatus = '/getMessageStatus',
     saveMessage = '/saveMessage',
-    updateSingleMessageProp = '/updateSingleMessageProp'
+    updateSingleMessageProp = '/updateSingleMessageProp',
+    deleteMessage= '/deleteMessage'
 }

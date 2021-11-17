@@ -102,6 +102,24 @@ export class MessageDbService {
         }
     }
 
+    async deleteMessage(id: string) {
+        try {
+            const {deletedCount} = await MessageModel.deleteOne(
+                { _id: id }
+            );
+
+            if (deletedCount !== 1) {
+                throw new Error(`could not delete doc ${id}}`)
+            }
+
+            return;
+        }
+        catch (error) {
+            console.error(`error deleting message prop ${id}`, error)
+            throw (error)
+        }
+    }
+
     private createPagingMessageQuery({ pageNumber, pageSize, direction, sortColumn, searchBeforeOrAfterId, searchAfter, searchBefore, filter = null }: GetMessageParams): any[] {
         const isPartialSearch: boolean = true;
         const sortDocsQuery = { $sort: { [sortColumn]: MessageSortDirection[direction], _id: MessageSortDirection[direction] } };

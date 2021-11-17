@@ -29,6 +29,7 @@
         <mat-cell
           [ngStyle]="{ display: 'flex', 'flex-direction': 'column' }"
           *matCellDef="let element"
+          (contextmenu)="onContextMenuClick($event, element)"
         >
           <app-cell-display
             [messageId]="element._id"
@@ -56,3 +57,7 @@
     (page)="onPageChange($event)"
   ></mat-paginator>
 </div>
+
+<app-context-menu [triggerContextMenu]="contextMenuParams">
+  <button mat-menu-item (click)="onDeleteRow($event)">Delete Row</button>
+</app-context-menu>

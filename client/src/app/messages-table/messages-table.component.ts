@@ -1,4 +1,4 @@
-import { GetMessagePropDefinitionResponse } from './../../../../shared/messages.model';
+import { DeleteMessageResponse, GetMessagePropDefinitionResponse } from './../../../../shared/messages.model';
 import { ServerMessageCommunicationService } from './services/server-message-communication.service';
 import {
   AfterViewInit,
@@ -19,6 +19,7 @@ import { GetMessageParams, GetPagedMessageResponse, Message, MessageSortDirectio
 import { reduce } from 'lodash';
 import { MessageForm, TypeToMessageForm, SupportedMessagePropTypes } from './model/message-forms';
 import { MessageFormDefinitionService } from 'src/app/messages-table/services/message-form-definition.service';
+import { ContextMenuParams } from 'src/app/conext-menu/context-menu.component';
 
 
 @Component({
@@ -33,6 +34,7 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
   isLoadingResults = true;
   dataSource: MatTableDataSource<Message> = new MatTableDataSource([] as Message[]);
   messagePropDefinitions!: Record<string, MessageForm>;
+  contextMenuParams: ContextMenuParams<Message> | undefined;
   private destroy$: Subject<void> = new Subject<void>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -116,6 +118,30 @@ export class MessagesTableComponent implements OnInit, AfterViewInit, OnDestroy 
         } else {
           let data: null | Message[] = [...this.dataSource.data];
           data[index] = updatedMessage;
+          this.dataSource.data = [];
+          this.dataSource.data = data;
+          data = null;
+        }
+      }, (error: any) => {
+        console.log(error)
+      });
+  }
+
+  onContextMenuClick(event: MouseEvent, item: Message) {
+    this.contextMenuParams = { event, item };
+  }
+
+
+  onDeleteRow($event: MouseEvent) {
+    this.serverMessageCommunicationService.deleteMessage(this.contextMenuParams!.item).pipe(first()).subscribe(
+      ({ deletedId }: DeleteMessageResponse) => {
+        const index = this.dataSource.data.findIndex((msg: Message) => msg._id === deletedId);
+
+        if (index === -1) {
+          console.error(`updated message doc  does not match any existing doc ${deletedId}`)
+        } else {
+          let data: null | Message[] = [...this.dataSource.data];
+          data.splice(index, 1);
           this.dataSource.data = [];
           this.dataSource.data = data;
           data = null;

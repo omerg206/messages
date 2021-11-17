@@ -1,6 +1,6 @@
 import { GetPagedMessageResponse } from './../../shared/messages.model';
 import { Response, Request, NextFunction } from 'express'
-import { getAllMessages, getMessageStatus, getPagingMessages, saveNewMessage, getMessagePropDefinition, updateASingleMessageProp } from '../controllers/messages.controller';
+import { getAllMessages, getMessageStatus, getPagingMessages, saveNewMessage, getMessagePropDefinition, updateASingleMessageProp, deleteMessage } from '../controllers/messages.controller';
 import { messageDbService } from '../db/messages/message-db-service';
 import { body, validationResult, query } from 'express-validator';
 import { AppRoutes } from '../../shared/routes.model';
@@ -79,6 +79,20 @@ router.patch(AppRoutes.updateSingleMessageProp, async function (req: Request, re
     }
 
 })
+
+router.delete(AppRoutes.deleteMessage, query('toDeleteId').exists(),
+    async function (req: Request, res: Response, next: NextFunction) {
+        try {
+            const toDeleteId = req.query['toDeleteId'] as string;
+
+            await deleteMessage(messageDbService, toDeleteId);
+
+            return res.status(200).json({ deletedId: toDeleteId });
+        } catch (error) {
+            return next(error)
+        }
+
+    })
 
 router.get(AppRoutes.getMessagePropDefinitions, function (req: Request, res: Response, next: NextFunction) {
     try {
